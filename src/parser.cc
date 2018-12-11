@@ -193,11 +193,11 @@ void AST::traverse(){
             Q.push(cur->child[i]);
     }
 
-    Q.push_back(root);
+    Q.push(root);
     while(!Q.empty()){
         ast_node *cur = Q.front();
         if (cur->node_type==1)
-            des.push_back(char(cur->identifier));
+            des.push_back(string(1,char(cur->identifier)));
         else {
             if (cur->op_type==-3)
                 des.push_back("*");
@@ -221,6 +221,6 @@ void AST::traverse(){
         dot_graph<<to_string(src[i])<<" -> "<<to_string(dst[i])<<endl;
     
     for(int i=0;i<des.size();i++)
-        dot_graph<<to_string(i)<<"[ label = \""<<des[i]<<"\"]"<<endl;
+        dot_graph<<" "<<to_string(i)<<"[ label = \""<<des[i]<<"\"]"<<endl;
     dot_graph<<"}";
 }
