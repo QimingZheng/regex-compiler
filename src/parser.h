@@ -1,3 +1,6 @@
+#ifndef PARSER_H
+#define PARSER_H
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -42,3 +45,4 @@ public:
     void traverse();
 
 };
+#endif

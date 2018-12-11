@@ -1,8 +1,11 @@
+#ifndef PARSER_CC
+#define PARSER_CC
+
 #include "parser.h"
 
 AST::AST(char *regex, int length){
-    vector<int> entended_regex = extend_regex(regex, length);
-    vector<int> post_exp = re2post(entended_regex);
+    vector<int> extended_regex = extend_regex(regex, length);
+    vector<int> post_exp = re2post(extended_regex);
     constructAST(post_exp);
     return;
 }
@@ -228,3 +231,4 @@ void AST::traverse(){
         dot_graph<<" "<<to_string(i)<<"[ label = \""<<des[i]<<"\"]"<<endl;
     dot_graph<<"}";
 }
+#endif
