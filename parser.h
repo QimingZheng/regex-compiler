@@ -8,8 +8,10 @@
 #include <map>
 #include <queue>
 #include <set>
+#include <assert.h>
+using namespace std;
 
-typedef u8 unsigned char;
+typedef unsigned char u8;
 
 class AST{
 public:

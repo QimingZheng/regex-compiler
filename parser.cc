@@ -22,20 +22,20 @@ void AST::constructAST(vector<int> post_regex){
                     S.push(cur);
                     break;
                 case -4:
-                    assert(S.size()>=2)
+                    assert(S.size()>=2);
                     cur->child.push_back(S.top());
                     S.pop();
                     cur->child.push_back(S.top());
                     S.pop();
-                    S.push_back(cur);
+                    S.push(cur);
                     break;
                 case -5:
-                    assert(S.size()>=2)
+                    assert(S.size()>=2);
                     cur->child.push_back(S.top());
                     S.pop();
                     cur->child.push_back(S.top());
                     S.pop();
-                    S.push_back(cur);
+                    S.push(cur);
                     break;
                 default:
                     printf("ast construction failed\n");
@@ -44,7 +44,7 @@ void AST::constructAST(vector<int> post_regex){
             }
         }
         else{
-            S.push_back(cur);
+            S.push(cur);
         }
     }
     assert(S.size()==1);
@@ -77,7 +77,7 @@ vector<int> AST::re2post(vector<int> re){
                     ret.push_back(S.top());
                     S.pop();
                 }
-                if (S.empty()) {printf("invalid regex\n") exit(-1);}
+                if (S.empty()) {printf("invalid regex\n"); exit(-1);}
                 S.pop();
             case -3: // *: -3
                 if(S.empty()) {S.push(-3);}
