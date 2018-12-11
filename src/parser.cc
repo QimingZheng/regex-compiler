@@ -173,3 +173,54 @@ vector<int> AST::extend_regex(char *regex, int length){
     }
     return re;
 }
+
+void AST::traverse(){
+    //BFS
+    queue<ast_node *> Q;
+    ofstream dot_graph;
+    dot_graph.open("graph.dot");
+    Q.push(root);
+    vector<int> src;
+    vector<int> dst;
+    vector<string> des;
+    int cnt = 0;
+    // label ids
+    while(!Q.empty()){
+        ast_node *cur = Q.front();
+        cur->ids = cnt++;
+        Q.pop();
+        for(int i=0;i<cur->child.size();i++)
+            Q.push(cur->child[i]);
+    }
+
+    Q.push_back(root);
+    while(!Q.empty()){
+        ast_node *cur = Q.front();
+        if (cur->node_type==1)
+            des.push_back(char(cur->identifier));
+        else {
+            if (cur->op_type==-3)
+                des.push_back("*");
+            if (cur->op_type==-4)
+                des.push_back("|");
+            if (cur->op_type==-5)
+                des.push_back(".");
+        }
+        Q.pop();
+        for(int i=0;i<cur->child.size();i++)
+            Q.push(cur->child[i]);
+        for(int i=0;i<cur->child.size();i++)
+        {
+            src.push_back(cur->ids);
+            dst.push_back(cur->child[i]->ids);
+        }
+    }
+
+    dot_graph<<"digraph example{\n";
+    for(int i=0;i<src.size();i++)
+        dot_graph<<to_string(src[i])<<" -> "<<to_string(dst[i])<<endl;
+    
+    for(int i=0;i<des.size();i++)
+        dot_graph<<to_string(i)<<"[ label = \""<<des[i]<<"\"]"<<endl;
+    dot_graph<<"}";
+}

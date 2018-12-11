@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,9 +27,10 @@ public:
             child.clear();
         }
         int node_type; // 0: internal node or 1: leaf, -1: by default at initialization stage
-        int op_type; // if node_type is internal node, then op_type is valid. 0: concate, 1: alternate, 2: kleene star
+        int op_type; // if node_type is internal node, then op_type is valid. -5: concate, -4: alternate, -3: kleene star
                      // we only support 3 types, for the construction of a glushkov NFA.
         int identifier; // if node_type is leaf, then identifier is valid, represent a character.
+        int ids; // helper attribute for traverse in debug
         vector<ast_node *> child;
     };
 
@@ -36,5 +39,6 @@ public:
     vector<int> re2post(vector<int> re);
     vector<int> extend_regex(char *regex, int length); // extend user's regex input to standard regex (with .)
     void constructAST(vector<int> post_regex);
+    void traverse();
 
 };
