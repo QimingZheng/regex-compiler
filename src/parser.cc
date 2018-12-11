@@ -52,7 +52,7 @@ void AST::constructAST(vector<int> post_regex){
     return;
 }
 
-// -1: concate, -2:alternate, -3: kleene star
+// -5: concate, -4:alternate, -3: kleene star
 vector<int> AST::re2post(vector<int> re){
     vector<int> ret;
     ret.clear();
@@ -162,6 +162,7 @@ vector<int> AST::extend_regex(char *regex, int length){
                 break;
             case '|':
                 re.push_back(-4);
+                break;
             default:
                 if (re.size()){
                     int last = re[re.size()-1];
