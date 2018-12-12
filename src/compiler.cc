@@ -225,11 +225,11 @@ void GlushKov_NFA::traverse(){
         dot_graph<<state[i]->state_id<<"->"<<state[i]->out_state[j]->state_id<<endl;
     }
     for(int i=0;i<state.size();i++){
-        if (state[i]->identifier>=0) {
-            dot_graph<<state[i]->state_id<<" [ label = \""<< string(1,char(state[i]->identifier))<<"\"]"<<endl;
-        }
-        else
-            dot_graph<<state[i]->state_id<<" [ label = \"init\"]"<<endl;
+        if (state[i]->identifier>=0) dot_graph<<state[i]->state_id<<" [ label = \""<< string(1,char(state[i]->identifier));
+        else dot_graph<<state[i]->state_id<<" [ label = \"init";
+        if (state[i]->is_final) dot_graph<<", fillcolor=\"green\"";
+        if (state[i].in_state.size()==0) dot_graph<<", shape=\"record\"";
+        dot_graph<<"\"]"<<endl;
     }
     dot_graph<<"}";
     return;
