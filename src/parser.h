@@ -19,6 +19,10 @@ using namespace std;
 typedef unsigned char u8;
 
 struct edge_pair{
+    edge_pair(int a, int b){
+        src_ids = a;
+        dst_ids = b;
+    }
     int src_ids;
     int dst_ids;
     bool operator == (edge_pair &a){
