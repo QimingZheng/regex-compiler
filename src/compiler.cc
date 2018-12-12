@@ -228,7 +228,7 @@ void GlushKov_NFA::traverse(){
         if (state[i]->identifier>=0) dot_graph<<state[i]->state_id<<" [ label = \""<< string(1,char(state[i]->identifier));
         else dot_graph<<state[i]->state_id<<" [ label = \"init";
         if (state[i]->is_final) dot_graph<<", fillcolor=\"green\"";
-        if (state[i].in_state.size()==0) dot_graph<<", shape=\"record\"";
+        if (state[i]->in_state.size()==0) dot_graph<<", shape=\"record\"";
         dot_graph<<"\"]"<<endl;
     }
     dot_graph<<"}";
