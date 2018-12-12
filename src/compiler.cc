@@ -177,8 +177,8 @@ vector<edge_pair> GlushKov_NFA::Neighbor_set(ast_node *_ast){
         if (_ast->op_type == -5){
             Neighbor_set(_ast->child[0]);
             Neighbor_set(_ast->child[1]);
-            vector<int> P = _ast->child[0]->_Suffix_set;
-            vector<int> D = _ast->child[1]->_Prefix_set;
+            vector<int> D = _ast->child[0]->_Suffix_set;
+            vector<int> P = _ast->child[1]->_Prefix_set;
             vector<edge_pair> D_P, tmp;
             for(int i=0;i<D.size();i++)
             {
