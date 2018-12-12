@@ -1,5 +1,61 @@
 #include "compiler.h"
 
+GlushKov_NFA::GlushKov_NFA(AST *ast);{
+
+    this->ast = ast;
+    label_ast_to_nfa(this->ast->root);
+    state_node *start = new state_node(0,-6);
+    state.push_back(start);
+    // calculate null-set
+    if(V_set(this->ast->root)) {start->is_final = true;}
+
+    //calculate prefix set and link start to prefix state
+    vector<int> P = Prefix_set(this->ast->root);
+    for(int i=0;i<P.size();i++)
+    {
+        for(int j=0;j<state.size();j++)
+        {
+            if(state[j]->state_id == P[i])
+            {
+                start->out_state.push_back(state[j]);
+                state[j]->in_state.push_back(start);
+                break;                
+            }
+        }
+    }
+
+    //calculate suffix set and mark suffix state's is_final flag
+    vector<int> D = Suffix_set(this->ast->root);
+    for(int i=0;i<D.size();i++)
+    {
+        for(int j=0;j<state.size();j++)
+        {
+            if(state[j]->state_id == D[i])
+            {
+                state[j]->is_final=true;
+                break;
+            }
+        }
+    }
+
+    //calculate neighbor-edge set and link src state to dst state
+    vector<edge_pair> F = Neighbor_set(this->ast->root);
+    for(int i=0; i<F.size();i++)
+    {
+        for(int j=0;j<state.size();j++){
+            if(state[j]->ids!=F[i].src_ids) continue;
+            for(int k=0;k<state.size();k++)
+            {
+                if(state[k]->ids!F[i].dst_ids) continue;
+                state[j]->out_state.push_back(state[k]);
+                state[k]->in_state.push_back(state[j]);
+                break;
+            }
+            break;
+        }
+    }
+}
+
 void GlushKov_NFA::label_ast_to_nfa(ast_node *_ast) {
     queue<ast_node *> Q;
     Q.push(_ast);

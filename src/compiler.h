@@ -1,16 +1,23 @@
 #include "parser.cc"
 
 struct state_node{
-    state_node(int si, int idt) {state_id = si; identifier = idt;}
+    state_node(int si, int idt) {
+        state_id = si;
+        identifier = idt;
+        is_final = false;
+        in_state.clear();
+        out_state.clear();
+    }
     int state_id;
     int identifier;
+    bool is_final;
     vector<state_node *> in_state;
     vector<state_node *> out_state;
 };
 
 class GlushKov_NFA{
 public:
-    GlushKov_NFA(AST *ast){ this->ast = ast;}
+    GlushKov_NFA(AST *ast);
     AST *ast;
     vector<state_node *> state; // state set, final representation of NFA
 
