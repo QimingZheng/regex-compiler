@@ -114,8 +114,8 @@ vector<int> GlushKov_NFA::Prefix_set(ast_node *_ast){
             return _ast->_Prefix_set;
         }
         if (_ast->op_type == -5){
-            V_set(_ast->child[0]);
-            V_set(_ast->child[1]);
+            Prefix_set(_ast->child[0]);
+            Prefix_set(_ast->child[1]);
             if (_ast->child[0]->_V_set)
                 _ast->_Prefix_set = vector_union(_ast->child[0]->_Prefix_set, _ast->child[1]->_Prefix_set);
             else
@@ -129,18 +129,18 @@ vector<int> GlushKov_NFA::Suffix_set(ast_node *_ast){
     if (_ast->node_type==1){_ast->_Suffix_set.push_back(_ast->ids); return _ast->_Suffix_set;}
     else{
         if (_ast->op_type == -3){
-            _ast->_Suffix_set = Prefix_set(_ast->child[0]);
+            _ast->_Suffix_set = Suffix_set(_ast->child[0]);
             return _ast->_Suffix_set;
         }
         if (_ast->op_type == -4){
-            Prefix_set(_ast->child[0]);
-            Prefix_set(_ast->child[1]);
+            Suffix_set(_ast->child[0]);
+            Suffix_set(_ast->child[1]);
             _ast->_Suffix_set = vector_union(_ast->child[0]->_Suffix_set, _ast->child[1]->_Suffix_set);
             return _ast->_Suffix_set;
         }
         if (_ast->op_type == -5){
-            V_set(_ast->child[0]);
-            V_set(_ast->child[1]);
+            Suffix_set(_ast->child[0]);
+            Suffix_set(_ast->child[1]);
             if (_ast->child[1]->_V_set)
                 _ast->_Suffix_set = vector_union(_ast->child[1]->_Suffix_set, _ast->child[0]->_Suffix_set);
             else
