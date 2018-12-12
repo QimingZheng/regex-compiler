@@ -29,6 +29,8 @@ public:
     vector<int> Prefix_set(ast_node *_ast); // Prefix-set of ast, return state_id (==ast_node.ids)
     vector<int> Suffix_set(ast_node *_ast); // Suffix-set of ast, return state_id (==ast_node.ids)
     vector<edge_pair> Neighbor_set(ast_node *_ast); // neighbor-set of ast, return edge_pair(src-state_id, dst-state_id) (==ast_node.ids)
+
+    void traverse(); // helper functions that used to visualize GlushKov NFA and debug
 };
 
 template <typename T>

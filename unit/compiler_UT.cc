@@ -6,5 +6,6 @@ int main(){
     AST ast(regex, length);
     ast.traverse();
     GlushKov_NFA NFA(&ast);
+    NFA.traverse();
     return 0;
 }

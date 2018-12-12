@@ -1,6 +1,6 @@
 #include "compiler.h"
 
-GlushKov_NFA::GlushKov_NFA(AST *ast);{
+GlushKov_NFA::GlushKov_NFA(AST *ast){
 
     this->ast = ast;
     label_ast_to_nfa(this->ast->root);
@@ -43,10 +43,10 @@ GlushKov_NFA::GlushKov_NFA(AST *ast);{
     for(int i=0; i<F.size();i++)
     {
         for(int j=0;j<state.size();j++){
-            if(state[j]->ids!=F[i].src_ids) continue;
+            if(state[j]->state_id!=F[i].src_ids) continue;
             for(int k=0;k<state.size();k++)
             {
-                if(state[k]->ids!F[i].dst_ids) continue;
+                if(state[k]->state_id!=F[i].dst_ids) continue;
                 state[j]->out_state.push_back(state[k]);
                 state[k]->in_state.push_back(state[j]);
                 break;
@@ -213,4 +213,24 @@ vector<T> vector_union(vector<T> &a, vector<T> &b){
         if (!added) re.push_back(b[i]);
     }
     return re;
+}
+
+
+void GlushKov_NFA::traverse(){
+    ofstream dot_graph;
+    dot_graph.open("nfa_graph.dot");
+    dot_graph<<"digraph example{\n";
+    for(int i=0;i<state.size();i++){
+        for(int j=0;j<state[i]->out_state.size();j++)
+        dot_graph<<state[i]->state_id<<"->"<<state[i]->out_state[j]->state_id<<endl;
+    }
+    for(int i=0;i<state.size();i++){
+        if (state[i]->identifier>=0) {
+            dot_graph<<state[i]->state_id<<" [ label = \""<< string(1,char(state[i]->identifier))<<"\"]"<<endl;
+        }
+        else
+            dot_graph<<state[i]->state_id<<" [ label = \"init\"]"<<endl;
+    }
+    dot_graph<<"}";
+    return;
 }
