@@ -21,8 +21,8 @@ typedef unsigned char u8;
 struct edge_pair{
     int src_ids;
     int dst_ids;
-    bool operator == (edge_pair &a, edge_pair &b){
-        return (a.src_ids == b.src_ids && a.dst_ids == b.dst_ids);
+    bool operator == (edge_pair &a){
+        return (a.src_ids == this->src_ids && a.dst_ids == this->dst_ids);
     }
 };
 

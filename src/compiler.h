@@ -23,3 +23,6 @@ public:
     vector<int> Suffix_set(ast_node *_ast); // Suffix-set of ast, return state_id (==ast_node.ids)
     vector<edge_pair> Neighbor_set(ast_node *_ast); // neighbor-set of ast, return edge_pair(src-state_id, dst-state_id) (==ast_node.ids)
 };
+
+template <typename T>
+vector<T> vector_union(vector<T> &a, vector<T> &b);
