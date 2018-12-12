@@ -18,8 +18,8 @@ public:
     // in the same way, store states in "state" variable.
     void label_ast_to_nfa(ast_node *_ast);
     
-    vector<int> V_set(ast_node *_ast); // V-set of ast, return state_id (==ast_node.ids)
+    bool V_set(ast_node *_ast); // V-set of ast, return true: allow empty word, false: not allow empty word
     vector<int> Prefix_set(ast_node *_ast); // Prefix-set of ast, return state_id (==ast_node.ids)
     vector<int> Suffix_set(ast_node *_ast); // Suffix-set of ast, return state_id (==ast_node.ids)
-    vector<int> Neighbor_set(ast_node *_ast); // neighbor-set of ast, return (src-state_id, dst-state_id) (==ast_node.ids)
+    vector<edge_pair> Neighbor_set(ast_node *_ast); // neighbor-set of ast, return edge_pair(src-state_id, dst-state_id) (==ast_node.ids)
 };

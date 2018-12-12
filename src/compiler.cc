@@ -21,3 +21,140 @@ void GlushKov_NFA::label_ast_to_nfa(ast_node *_ast) {
     return;
 }
 
+bool GlushKov_NFA::V_set(ast_node *_ast){
+    if (_ast->node_type==1){_ast->_V_set = false; return false;}
+    else{
+        if (_ast->op_type == -3){
+            V_set(_ast->child[0]);
+            _ast->_V_set = true;
+            return _ast->_V_set;
+        }
+        if (_ast->op_type == -4){
+            V_set(_ast->child[0]);
+            V_set(_ast->child[1]);
+            _ast->_V_set = (_ast->child[0]->_V_set || _ast->child[1]->_V_set);
+            return _ast->_V_set;
+        }
+        if (_ast->op_type == -5){
+            V_set(_ast->child[0]);
+            V_set(_ast->child[1]);
+            _ast->_V_set = (_ast->child[0]->_V_set && _ast->child[1]->_V_set);
+            return _ast->_V_set;
+        }
+    }
+}
+
+vector<int> GlushKov_NFA::Prefix_set(ast_node *_ast){
+    if (_ast->node_type==1){_ast->_Prefix_set.push_back(_ast->ids); return _ast->_Prefix_set;}
+    else{
+        if (_ast->op_type == -3){
+            _ast->_Prefix_set = Prefix_set(_ast->child[0]);
+            return _ast->_Prefix_set;
+        }
+        if (_ast->op_type == -4){
+            Prefix_set(_ast->child[0]);
+            Prefix_set(_ast->child[1]);
+            _ast->_Prefix_set = vector_union(_ast->child[0]->_Prefix_set, _ast->child[1]->_Prefix_set);
+            return _ast->_Prefix_set;
+        }
+        if (_ast->op_type == -5){
+            V_set(_ast->child[0]);
+            V_set(_ast->child[1]);
+            if (_ast->child[0]->_V_set)
+                _ast->_Prefix_set = vector_union(_ast->child[0]->_Prefix_set, _ast->child[1]->_Prefix_set);
+            else
+                _ast->_Prefix_set = _ast->child[0]->_Prefix_set;
+            return _ast->_Prefix_set;
+        }
+    }
+}
+
+vector<int> GlushKov_NFA::Suffix_set(ast_node *_ast){
+    if (_ast->node_type==1){_ast->_Suffix_set.push_back(_ast->ids); return _ast->_Suffix_set;}
+    else{
+        if (_ast->op_type == -3){
+            _ast->_Suffix_set = Prefix_set(_ast->child[0]);
+            return _ast->_Suffix_set;
+        }
+        if (_ast->op_type == -4){
+            Prefix_set(_ast->child[0]);
+            Prefix_set(_ast->child[1]);
+            _ast->_Suffix_set = vector_union(_ast->child[0]->_Suffix_set, _ast->child[1]->_Suffix_set);
+            return _ast->_Suffix_set;
+        }
+        if (_ast->op_type == -5){
+            V_set(_ast->child[0]);
+            V_set(_ast->child[1]);
+            if (_ast->child[1]->_V_set)
+                _ast->_Suffix_set = vector_union(_ast->child[1]->_Suffix_set, _ast->child[0]->_Suffix_set);
+            else
+                _ast->_Suffix_set = _ast->child[1]->_Suffix_set;
+            return _ast->_Suffix_set;
+        }
+    }
+}
+
+vector<edge_pair> GlushKov_NFA::Neighbor_set(ast_node *_ast){
+    if (_ast->node_type==1){_ast->_Neighbor_set.clear(); return _ast->_Neighbor_set;}
+    else{
+        if (_ast->op_type == -3){
+            Neighbor_set(_ast->child[0]);
+            vector<int> P = _ast->child[0]->_Prefix_set;
+            vector<int> D = _ast->child[0]->_Suffix_set;
+            vector<edge_pair> D_P;
+            for(int i=0;i<D.size();i++)
+            {
+                for(int j=0;j<P.size();j++)
+                {
+                    D_P.push_back(edge_pair(D[i],P[j]));
+                }
+            }
+            _ast->_Neighbor_set = vector_union(_ast->child[0]->_Neighbor_set, D_P);
+            return _ast->_Neighbor_set;
+        }
+        if (_ast->op_type == -4){
+            Neighbor_set(_ast->child[0]);
+            Neighbor_set(_ast->child[1]);
+            _ast->_Neighbor_set = vector_union(_ast->child[0]->_Neighbor_set, _ast->child[1]->_Neighbor_set);
+            return _ast->_Neighbor_set;
+        }
+        if (_ast->op_type == -5){
+            Neighbor_set(_ast->child[0]);
+            Neighbor_set(_ast->child[1]);
+            vector<int> P = _ast->child[0]->_Suffix_set;
+            vector<int> D = _ast->child[1]->_Prefix_set;
+            vector<edge_pair> D_P, tmp;
+            for(int i=0;i<D.size();i++)
+            {
+                for(int j=0;j<P.size();j++)
+                {
+                    D_P.push_back(edge_pair(D[i],P[j]));
+                }
+            }
+            tmp = vector_union(_ast->child[0]->_Neighbor_set, _ast->child[1]->_Neighbor_set);
+            _ast->_Neighbor_set = vector_union(tmp, D_P);
+            return _ast->_Neighbor_set;
+        }
+    }
+}
+
+template <typename T>
+vector<T> vector_union(vector<T> &a, vector<T> &b){
+    vector<T> re;
+    re.clear();
+    for(int i=0;i<a.size();i++)
+    {
+        bool added = false;
+        for(int j=0;j<re.size();j++)
+            if(a[i]==re[j]) {added = true; break;}
+        if (!added) re.push_back(a[i]);
+    }
+    for(int i=0;i<b.size();i++)
+    {
+        bool added = false;
+        for(int j=0;j<re.size();j++)
+            if(b[i]==re[j]) {added = true; break;}
+        if (!added) re.push_back(b[i]);
+    }
+    return re;
+}
