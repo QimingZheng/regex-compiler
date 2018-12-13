@@ -72,6 +72,7 @@ void NFA_Matcher::init_table(){
 
     // init state_node's identifier == -6, sort states according to their identifier
     sort(nfa->state.begin(), nfa->state.end(), [](state_node *a, state_node *b){return a->identifier < b->identifier;}); 
+    nfa->state[0]->identifier = 0;
 
     // Attention!!!! reassign state_node's ids, and start-state's id is 0
     int cnt = 0;
