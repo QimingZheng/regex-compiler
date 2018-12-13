@@ -75,7 +75,7 @@ void NFA_Matcher::init_table(){
 
     // Attention!!!! reassign state_node's ids, and start-state's id is 0
     int cnt = 0;
-    for (auto iter = nfa->state.begin(); iter != nfa->state.end(); iter++) (*iter).state_id = cnt++;
+    for (auto iter = nfa->state.begin(); iter != nfa->state.end(); iter++) (*iter)->state_id = cnt++;
 
     state_num = nfa->state.size();
 
@@ -86,7 +86,7 @@ void NFA_Matcher::init_table(){
     memset(begin_index_of_states, 0, sizeof(int)*256);
     int ind=0, _cnt = 0;
     for(auto iter = nfa->state.begin(); iter != nfa->state.end(); iter++){
-        if((*iter).identifier==_cnt) {
+        if((*iter)->identifier==_cnt) {
             begin_index_of_states[cnt]=ind;
             _cnt+=1;
         }
