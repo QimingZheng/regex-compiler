@@ -72,7 +72,6 @@ void NFA_Matcher::init_table(){
 
     // init state_node's identifier == -6, sort states according to their identifier
     sort(nfa->state.begin(), nfa->state.end(), [](state_node *a, state_node *b){return a->identifier < b->identifier;}); 
-    nfa->state[0]->identifier = 0;
 
     // Attention!!!! reassign state_node's ids, and start-state's id is 0
     int cnt = 0;
@@ -85,13 +84,19 @@ void NFA_Matcher::init_table(){
 
     begin_index_of_states = new int[256];
     memset(begin_index_of_states, 0, sizeof(int)*256);
-    int ind=0, _cnt = 0;
+    int _cnt = 0;
+
     for(auto iter = nfa->state.begin(); iter != nfa->state.end(); iter++){
-        if((*iter)->identifier==_cnt) {
-            begin_index_of_states[_cnt]=ind;
-            _cnt+=1;
+        if((*iter)->identifier>_cnt) {
+            for(int k = _cnt; k<(*iter)->identifier; k++)
+                begin_index_of_states[k]=state_num;
+            begin_index_of_states[(*iter)->identifier] = (*iter)->state_id;
+            _cnt=1+(*iter)->identifier;
         }
-        ind++;
+        else if((*iter)->identifier==_cnt){
+            begin_index_of_states[(*iter)->identifier] = (*iter)->state_id;
+            _cnt++;
+        }
     }
     
     vector<int> tmp_pre_state;
