@@ -1,8 +1,7 @@
 #include "matcher.h"
 
-#define get_bit(a) states[a/(8*sizeof(u8))]|(1<<(a%(8*sizeof(u8))))
+#define get_bit(a) states[a/(8*sizeof(u8))]&(1<<(a%(8*sizeof(u8))))
 #define set_bit(a) states[a/(8*sizeof(u8))]|=(1<<(a%(8*sizeof(u8))))
-#define unset_bit(a) states[a/(8*sizeof(u8))]&=((1<<(a%(8*sizeof(u8))))^(u8)((1<<8)-1))
 
 vector<int> NFA_Matcher::naive_matcher(u8 *str, int length){
     vector<int> ret;
@@ -56,8 +55,8 @@ vector<int> NFA_Matcher::optimizaed_matcher(u8 *str, int length){
             }
         }
 
-        for(int j=0;j<state_num; j++)
-            unset_bit(j);
+        for(int j=0;j<(state_num-1)/(sizeof(u8)*8)+1; j++)
+            states[j]=0;
         for(int j=0;j<tmp.size(); j++)
             set_bit(tmp[j]);
 
