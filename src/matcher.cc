@@ -84,7 +84,7 @@ void NFA_Matcher::init_table(){
 
     begin_index_of_states = new int[256];
     memset(begin_index_of_states, 0, sizeof(int)*256);
-    int ind=0, _cnt == 0;
+    int ind=0, _cnt = 0;
     for(auto iter = nfa->state.begin(); iter != nfa->state.end(); iter++){
         if((*iter).identifier==_cnt) {
             begin_index_of_states[cnt]=ind;

@@ -17,7 +17,7 @@ int main(){
 
     vector<int> tmp = Matcher.naive_matcher(input_str_0, length);
     cout<<tmp.size()<<endl;
-    tmp = optimizaed_matcher(input_str_0, length);
+    tmp = Matcher.optimizaed_matcher(input_str_0, length);
     cout<<tmp.size()<<endl;
 
     u8 input_str_1[] = "fsjdavdavdavdavdavdavdavffffda";
@@ -25,7 +25,7 @@ int main(){
     
     tmp = Matcher.naive_matcher(input_str_1, length);
     cout<<tmp.size()<<endl;
-    tmp = optimizaed_matcher(input_str_1, length);
+    tmp = Matcher.optimizaed_matcher(input_str_1, length);
     cout<<tmp.size()<<endl;
 
     return 0;
