@@ -1,3 +1,5 @@
+#ifndef COMPILER_CC
+#define COMPILER_CC
 #include "compiler.h"
 
 GlushKov_NFA::GlushKov_NFA(AST *ast){
@@ -6,6 +8,7 @@ GlushKov_NFA::GlushKov_NFA(AST *ast){
     label_ast_to_nfa(this->ast->root);
     state_node *start = new state_node(0,-6);
     state.push_back(start);
+    entrance = start;
     // calculate null-set
     if(V_set(this->ast->root)) {start->is_final = true;}
 
@@ -234,3 +237,4 @@ void GlushKov_NFA::traverse(){
     dot_graph<<"}";
     return;
 }
+#endif

@@ -1,3 +1,5 @@
+#ifndef COMPILER_H
+#define COMPILER_H
 #include "parser.cc"
 
 struct state_node{
@@ -20,6 +22,7 @@ public:
     GlushKov_NFA(AST *ast);
     AST *ast;
     vector<state_node *> state; // state set, final representation of NFA
+    state_node *entrance;
 
     // traverse ast and label the leaf nodes' ids, initialize states
     // in the same way, store states in "state" variable.
@@ -35,3 +38,4 @@ public:
 
 template <typename T>
 vector<T> vector_union(vector<T> &a, vector<T> &b);
+#endif
