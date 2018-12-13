@@ -47,19 +47,19 @@ vector<int> NFA_Matcher::optimizaed_matcher(u8 *str, int length){
         int ch = str[i];
         int from = begin_index_of_states[ch];
         int to = (ch == 255) ? state_num : begin_index_of_states[ch+1];
+        vector<int> tmp;
+        tmp.clear();
         for(int j=from; j<to; j++)
         {
-            bool setted = false;
-            for (int k=begin_index_of_pre[j]; k< ((j==255)?transition_num:begin_index_of_pre[j+1]); k++){
-                if (get_bit(pre_states[k])) {setted = true; set_bit(j); break;}
+            for (int k=begin_index_of_pre[j]; k< ((j==state_num-1)?transition_num:begin_index_of_pre[j+1]); k++){
+                if (get_bit(pre_states[k])) {tmp.push_back(j); break;}
             }
-            if(!setted) unset_bit(j);
         }
 
-        for(int j=0;j<from; j++)
+        for(int j=0;j<state_num; j++)
             unset_bit(j);
-        for(int j=to;j<state_num; j++)
-            unset_bit(j);
+        for(int j=0;j<tmp.size(); j++)
+            set_bit(tmp[j]);
 
         for(int j=0; j<(state_num-1)/(sizeof(u8)*8)+1;j++)
             if(final_states[j]&states[j]) {ret.push_back(i); break;}
@@ -98,6 +98,7 @@ void NFA_Matcher::init_table(){
             _cnt++;
         }
     }
+    for(int i=_cnt; i<256;i++)  begin_index_of_states[i]=state_num;
     
     vector<int> tmp_pre_state;
     vector<int> tmp_pre_index;
