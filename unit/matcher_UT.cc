@@ -12,14 +12,14 @@ int main(){
     
     NFA_Matcher Matcher(&NFA);
 
-    char input_str_0[] = "asfnsssdajsjdavdavffda";
-    length = strlen(input_str_0);
+    u8 input_str_0[] = "asfnsssdajsjdavdavffda";
+    length = 22;
 
     vector<int> tmp = Matcher.naive_matcher(input_str_0, length);
     cout<<tmp.size()<<endl;
 
-    char input_str_1[] = "fsjdavdavdavdavdavdavdavffffda";
-    length = strlen(input_str_1);
+    u8 input_str_1[] = "fsjdavdavdavdavdavdavdavffffda";
+    length = 30;
     
     tmp = Matcher.naive_matcher(input_str_1, length);
     cout<<tmp.size()<<endl;
