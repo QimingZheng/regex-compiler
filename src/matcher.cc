@@ -2,6 +2,7 @@
 
 #define get_bit(a) states[a/(8*sizeof(u8))]&(1<<(a%(8*sizeof(u8))))
 #define set_bit(a) states[a/(8*sizeof(u8))]|=(1<<(a%(8*sizeof(u8))))
+#define _set_bit(a) final_states[a/(8*sizeof(u8))]|=(1<<(a%(8*sizeof(u8))))
 
 vector<int> NFA_Matcher::naive_matcher(u8 *str, int length){
     vector<int> ret;
@@ -70,7 +71,7 @@ vector<int> NFA_Matcher::optimizaed_matcher(u8 *str, int length){
 void NFA_Matcher::init_table(){
 
     // init state_node's identifier == -6, sort states according to their identifier
-    sort(nfa->state.begin(), nfa->state.end(), [](state_node *a, state_node *b){return a->identifier < b->identifier;}); 
+    sort(nfa->state.begin(), nfa->state.end(), [](state_node *a, state_node *b){return a->identifier < b->identifier;});
 
     // Attention!!!! reassign state_node's ids, and start-state's id is 0
     int cnt = 0;
@@ -116,6 +117,8 @@ void NFA_Matcher::init_table(){
     
     for(int i=0;i<state_num;i++) begin_index_of_pre[i] = tmp_pre_index[i];
     for(int i=0;i<tmp_pre_state.size();i++) pre_states[i] = tmp_pre_state[i];
+
+    for(int i=0;i<state_num;i++) if(nfa->state[i]->is_final) _set_bit(i);
 
     return;
 }
