@@ -24,7 +24,6 @@ public:
     void init_table(); // only called once in constrcter
     vector<int> naive_matcher(u8 *str, int length);
     vector<int> optimized_matcher(u8 *str, int length);
-    vector<int> gpu_matcher(u8 *str, int length);
 
 };
 #endif

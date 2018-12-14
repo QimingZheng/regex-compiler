@@ -1,4 +1,5 @@
 #include "../src/matcher.cc"
+#include "../src/cuda_kernel.cu"
 
 int main(){
     char regex[]="(asd|fns*daj)*|fsj(dav)*f(fs|da)";
@@ -19,6 +20,8 @@ int main(){
     cout<<tmp.size()<<endl;
     tmp = Matcher.optimized_matcher(input_str_0, length);
     cout<<tmp.size()<<endl;
+    tmp = gpu_matcher(Matcher, input_str_0, length);
+    cout<<tmp.size()<<endl;
 
     u8 input_str_1[] = "fsjdavdavdavdavdavdavdavffffda";
     length = 30;
@@ -26,6 +29,8 @@ int main(){
     tmp = Matcher.naive_matcher(input_str_1, length);
     cout<<tmp.size()<<endl;
     tmp = Matcher.optimized_matcher(input_str_1, length);
+    cout<<tmp.size()<<endl;
+    tmp = gpu_matcher(Matcher, input_str_1, length);
     cout<<tmp.size()<<endl;
 
     return 0;
