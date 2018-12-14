@@ -15,10 +15,14 @@ __global__ void matcher(u8 *states, u8 *final_states, int *begin_index_of_states
     int from, to;
     int pre_from, pre_to;
 
-    __shared__ u8 shared_state[2][(state_num-1)/(8*sizeof(u8)) + 1];
-    __shared__ u8 shared_final_states[(state_num-1)/(8*sizeof(u8)) + 1];
+    //__shared__ u8 shared_state[2][(state_num-1)/(8*sizeof(u8)) + 1];
+    //__shared__ u8 shared_final_states[(state_num-1)/(8*sizeof(u8)) + 1];
+
+    __shared__ u8 shared_state[2][1<<13]; // state num should be less than 64K
+    __shared__ u8 shared_final_states[1<<13]; // state num should be less than 64K 
 
     for(int i = thread_idx; i < (state_num-1)/(8*sizeof(u8)) + 1; i+=thread_cnt){
+        shared_state[0][i] = 0;
         shared_state[1][i] = states[i];
         shared_final_states[i] = final_states[i];
     }
@@ -38,7 +42,7 @@ __global__ void matcher(u8 *states, u8 *final_states, int *begin_index_of_states
             for(int j=pre_from; j<pre_to; j++){
                 tmp |= (shared_state[(ind+1)%2][pre_states[j]/(sizeof(u8)*8)] & (1<<(pre_states[j]%(sizeof(u8)*8))));
             }
-            if(tmp) shared_state[ind%2][pre_states[j]/(sizeof(u8)*8)] |= (1<<(pre_states[j]%(sizeof(u8)*8))); // should be done with atomic operations
+            if(tmp) shared_state[ind%2][i/(sizeof(u8)*8)] |= (1<<(i%(sizeof(u8)*8))); // should be done with atomic operations
         }
         __syncthreads();
         for(int i = thread_idx; i < (state_num-1)/(8*sizeof(u8)) + 1; i+=thread_cnt){
