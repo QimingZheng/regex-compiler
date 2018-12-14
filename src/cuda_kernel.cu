@@ -64,8 +64,28 @@ vector<int> NFA_Matcher::gpu_matcher(u8 *str, int length){
     int *d_begin_index_of_states;
     int *d_pre_states;
     int *d_begin_index_of_pre;
+    bool *matcher_result = new bool;
+    u8 *d_str;
 
-    cudaMalloc((void **)&d_states, , );
+    cudaMalloc((void **)&d_states, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1));
+    cudaMalloc((void **)&d_final_states, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1));
+    cudaMalloc((void **)&d_begin_index_of_states, sizeof(int)*(256));
+    cudaMalloc((void **)&d_begin_index_of_pre, sizeof(int)*(state_num));
+    cudaMalloc((void **)&d_pre_states, sizeof(int)*(transition_num));
+    cudaMalloc((void **)&d_str, sizeof(u8)*length);
+
+    cudaMemcpy(d_states, states, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_final_states, final_states, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_begin_index_of_states, begin_index_of_states, sizeof(int)*(256), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_begin_index_of_pre, begin_index_of_pre, sizeof(int)*(state_num), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_pre_states, pre_states, sizeof(int)*(transition_num), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_str, sizeof(u8)*length, cudaMemcpyHostToDevice);
+
+    matcher(d_states, d_final_states, d_begin_index_of_states, 
+        d_pre_states, d_begin_index_of_pre, state_num,
+        transition_num, d_str, length, matcher_result);
+
+    if(*matcher_result) ret.push_back(length-1);
 
     return ret;
 }
