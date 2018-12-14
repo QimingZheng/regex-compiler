@@ -1,3 +1,6 @@
+#ifndef MATCHER_CC
+#define MATCHER_CC
+
 #include "matcher.h"
 
 #define get_bit(a) states[a/(8*sizeof(u8))]&(1<<(a%(8*sizeof(u8))))
@@ -35,7 +38,7 @@ vector<int> NFA_Matcher::naive_matcher(u8 *str, int length){
     return ret;
 }
 
-vector<int> NFA_Matcher::optimizaed_matcher(u8 *str, int length){
+vector<int> NFA_Matcher::optimized_matcher(u8 *str, int length){
     vector<int> ret;
     
     // clear states 
@@ -56,12 +59,12 @@ vector<int> NFA_Matcher::optimizaed_matcher(u8 *str, int length){
             }
         }
 
-        for(int j=0;j<(state_num-1)/(sizeof(u8)*8)+1; j++)
+        for(int j=0; j<(state_num-1)/(sizeof(u8)*8)+1; j++)
             states[j]=0;
-        for(int j=0;j<tmp.size(); j++)
+        for(int j=0; j<tmp.size(); j++)
             set_bit(tmp[j]);
 
-        for(int j=0; j<(state_num-1)/(sizeof(u8)*8)+1;j++)
+        for(int j=0; j<(state_num-1)/(sizeof(u8)*8)+1; j++)
             if(final_states[j]&states[j]) {ret.push_back(i); break;}
     }
 
@@ -80,7 +83,9 @@ void NFA_Matcher::init_table(){
     state_num = nfa->state.size();
 
     states = new u8[(state_num-1)/(8*sizeof(u8)) + 1];
+    final_states = new u8[(state_num-1)/(8*sizeof(u8)) + 1];
     memset(states, 0, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1));
+    memset(final_states, 0, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1));
 
     begin_index_of_states = new int[256];
     memset(begin_index_of_states, 0, sizeof(int)*256);
@@ -122,3 +127,4 @@ void NFA_Matcher::init_table(){
 
     return;
 }
+#endif

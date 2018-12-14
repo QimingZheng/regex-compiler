@@ -1,3 +1,6 @@
+#ifndef MATCHER_H
+#define MATCHER_H
+
 #include "compiler.cc"
 
 class NFA_Matcher{
@@ -20,7 +23,8 @@ public:
 
     void init_table(); // only called once in constrcter
     vector<int> naive_matcher(u8 *str, int length);
-    vector<int> optimizaed_matcher(u8 *str, int length);
+    vector<int> optimized_matcher(u8 *str, int length);
     vector<int> gpu_matcher(u8 *str, int length);
 
 };
+#endif
