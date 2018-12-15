@@ -1,5 +1,5 @@
-#include "../src/matcher.cc"
-#include "../src/cuda_kernel.cu"
+#include "matcher.h"
+#include "cuda_kernel.cu"
 
 int main(){
     char regex[]="(asd|fns*daj)*|fsj(dav)*f(fs|da)";

@@ -1,4 +1,4 @@
-#include "../src/matcher.cc"
+#include "matcher.h"
 
 int main(){
     char regex[]="(asd|fns*daj)*|fsj(dav)*f(fs|da)";

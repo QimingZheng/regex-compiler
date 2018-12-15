@@ -1,4 +1,4 @@
-#include "../src/parser.cc"
+#include "parser.h"
 
 int main(){
     char regex[]="(asd|fns*daj)*|fsj(dav)*f(fs|da)";

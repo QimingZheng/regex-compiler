@@ -100,6 +100,10 @@ bool GlushKov_NFA::V_set(ast_node *_ast){
             _ast->_V_set = (_ast->child[0]->_V_set && _ast->child[1]->_V_set);
             return _ast->_V_set;
         }
+        else{
+            printf("invalid ast, v-set is undefined\n");
+            exit(-4);
+        }
     }
 }
 
@@ -125,6 +129,10 @@ vector<int> GlushKov_NFA::Prefix_set(ast_node *_ast){
                 _ast->_Prefix_set = _ast->child[0]->_Prefix_set;
             return _ast->_Prefix_set;
         }
+        else{
+            printf("invalid ast, p-set is undefined\n");
+            exit(-5);
+        }
     }
 }
 
@@ -149,6 +157,10 @@ vector<int> GlushKov_NFA::Suffix_set(ast_node *_ast){
             else
                 _ast->_Suffix_set = _ast->child[1]->_Suffix_set;
             return _ast->_Suffix_set;
+        }
+        else{
+            printf("invalid ast, d-set is undefined\n");
+            exit(-6);
         }
     }
 }
@@ -193,6 +205,10 @@ vector<edge_pair> GlushKov_NFA::Neighbor_set(ast_node *_ast){
             tmp = vector_union(_ast->child[0]->_Neighbor_set, _ast->child[1]->_Neighbor_set);
             _ast->_Neighbor_set = vector_union(tmp, D_P);
             return _ast->_Neighbor_set;
+        }
+        else{
+            printf("invalid ast, f-set is undefined\n");
+            exit(-7);
         }
     }
 }
