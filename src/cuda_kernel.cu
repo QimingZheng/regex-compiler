@@ -92,7 +92,8 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
     cudaMemcpy(d_matcher_result, matcher_result, sizeof(bool), cudaMemcpyHostToDevice);
     dim3 grid(1,0,0);
     dim3 block(1024,0,0);
-    matcher<<<grid, block>>>(d_states, d_final_states, d_begin_index_of_states, d_pre_states, d_begin_index_of_pre, state_num, transition_num, d_str, length, matcher_result);
+    matcher<<<grid, block>>>(d_states, d_final_states, d_begin_index_of_states, d_pre_states, d_begin_index_of_pre,
+            state_num, transition_num, d_str, length, d_matcher_result);
     cudaDeviceSynchronize();
 
     if(*matcher_result) ret.push_back(length-1);
