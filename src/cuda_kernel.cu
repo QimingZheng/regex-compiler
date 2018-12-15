@@ -96,6 +96,8 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
             state_num, transition_num, d_str, length, d_matcher_result);
     cudaDeviceSynchronize();
 
+    cudaMemcpy(matcher_result, d_matcher_result, sizeof(bool), cudaMemcpyDeviceToHost);
+
     if(*matcher_result) ret.push_back(length-1);
     return ret;
 }
