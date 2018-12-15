@@ -18,9 +18,9 @@ public:
     u8 *states; // bit-state array
     u8 *final_states; // bit-arrary mark final states
     int *begin_index_of_states; // index of the first state in each kind of identifier
-    int *pre_states; // array that stores the prior states to each state
     int *begin_index_of_pre; // index of the first pre state of each state
-
+    int *pre_states; // array that stores the prior states to each state
+    
     void init_table(); // only called once in constrcter
     vector<int> naive_matcher(u8 *str, int length);
     vector<int> optimized_matcher(u8 *str, int length);
