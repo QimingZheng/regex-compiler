@@ -7,9 +7,9 @@ __global__ void matcher(u8 *states, u8 *final_states, int *begin_index_of_states
     int *pre_states, int *begin_index_of_pre, int state_num,
     int transition_num, u8 *str, int length, bool *matcher_result){
     int thread_idx = threadIdx.x;
-    int block_idx = blockIdx.x;
+    //int block_idx = blockIdx.x;
     int thread_cnt = blockDim.x;
-    int block_cnt = gridDim.x;
+    //int block_cnt = gridDim.x;
 
     int ind = 0, ch;
     int from, to;
@@ -18,8 +18,8 @@ __global__ void matcher(u8 *states, u8 *final_states, int *begin_index_of_states
     //__shared__ u8 shared_state[2][(state_num-1)/(8*sizeof(u8)) + 1];
     //__shared__ u8 shared_final_states[(state_num-1)/(8*sizeof(u8)) + 1];
 
-    __shared__ int shared_state[2][1<<11]; // state num should be less than 64K
-    __shared__ int shared_final_states[1<<11]; // state num should be less than 64K 
+    __shared__ int shared_state[2][1<<10]; // state num should be less than 32K
+    __shared__ int shared_final_states[1<<10]; // state num should be less than 32K
 
     for(int i = thread_idx; i < (state_num-1)/(8*sizeof(int)) + 1; i+=thread_cnt){
         shared_state[0][i] = 0;
@@ -42,7 +42,7 @@ __global__ void matcher(u8 *states, u8 *final_states, int *begin_index_of_states
             for(int j=pre_from; j<pre_to; j++){
                 tmp |= (shared_state[(ind+1)%2][pre_states[j]/(sizeof(int)*8)] & (1<<(pre_states[j]%(sizeof(int)*8))));
             }
-            if(tmp) atomicOr(shared_state + (ind%2)*((state_num-1)/(8*sizeof(int)) + 1) + i/(sizeof(int)*8), (1<<(i%(sizeof(int)*8)))); // should be done with atomic operations
+            if(tmp) atomicOr(&shared_state[ind%2][i/(sizeof(int)*8)], (1<<(i%(sizeof(int)*8)))); // should be done with atomic operations
         }
         __syncthreads();
         for(int i = thread_idx; i < (state_num-1)/(8*sizeof(int)) + 1; i+=thread_cnt){
@@ -64,6 +64,8 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
     int *begin_index_of_pre, int *pre_states, u8 *str, int length){
     vector<int> ret;
     ret.clear();
+
+    states[0] = 1;
 
     u8 *d_states;
     u8 *d_final_states;
@@ -90,8 +92,9 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
     cudaMemcpy(d_pre_states, pre_states, sizeof(int)*(transition_num), cudaMemcpyHostToDevice);
     cudaMemcpy(d_str, str, sizeof(u8)*length, cudaMemcpyHostToDevice);
     cudaMemcpy(d_matcher_result, matcher_result, sizeof(bool), cudaMemcpyHostToDevice);
-    dim3 grid(1,0,0);
-    dim3 block(1024,0,0);
+
+    dim3 grid(1,1,1);
+    dim3 block(1024,1,1);
     matcher<<<grid, block>>>(d_states, d_final_states, d_begin_index_of_states, d_pre_states, d_begin_index_of_pre,
             state_num, transition_num, d_str, length, d_matcher_result);
     cudaDeviceSynchronize();
