@@ -16,4 +16,4 @@ gpu_matcher:
 	${NVCC} ${NVCCFLAG} cuda_kernel.cu -c -o cuda_kernel.o
 
 clean:
-	rm *.o
+	rm *.o *.so
