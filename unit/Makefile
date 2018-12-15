@@ -9,17 +9,17 @@ NVCC_LIBRARY= -L/usr/local/cuda/lib
 
 all: parser_UT compiler_UT matcher_UT gpu_matcher_UT
 
-parser:
+parser_UT:
 	${CXX} ${CXXFLAG} parser_UT.cc -o parser_UT ../src/parser.o
 
-compiler:
+compiler_UT:
 	${CXX} ${CXXFLAG} compiler_UT.cc -o compiler_UT ../src/compiler.o
 
-matcher:
+matcher_UT:
 	${CXX} ${CXXFLAG} matcher_UT.cc -o matcher_UT ../src/matcher.o
 
-gpu_matcher:
+gpu_matcher_UT:
 	${NVCC} ${NVCCFLAG} matcher_UT.cu -o gpu_matcher_UT ../src/cuda_kernel.o
 
 clean:
-	rm *.o
+	rm parser_UT compiler_UT matcher_UT gpu_matcher_UT
