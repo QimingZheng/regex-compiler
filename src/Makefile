@@ -10,7 +10,7 @@ NVCC_LIBRARY= -L/usr/local/cuda/lib
 all: regex_internal gpu_matcher
 
 regex_internal:
-	${CXX} ${CXXFLAG} matcher.cc -fPIC -shared -o libmymatcher.so
+	${CXX} ${CXXFLAG} matcher.cc -fPIC -shared -o libregex_internal.so
 
 gpu_matcher:
 	${NVCC} ${NVCCFLAG} cuda_kernel.cu -c -o cuda_kernel.o
