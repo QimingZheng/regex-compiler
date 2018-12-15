@@ -11,10 +11,9 @@
     - If a grammar is non-standard, like back-reference, I won't and cannot support them in the future.
     
         Reason:
-
-            The main purpose of this project is exploring the possibility and utmost of accelerate match algorithm in GPU or other ASIC platforms.
-            If I want to support those non-standard rules, I have to change the current runtime match algorithm (a highly paralleled and high efficient algorithm), and use dfs-like algorithm to do the match tasks, which is difficult for the parallelization and usually cache-unfriendly. At the same time, a very power regex library: hyperscan，does not support non-standard ones also.
-            Certainly, I'm lazy doesn't mean there is no possibility of keep supporting those non-standard ones in the future, but matcher might need to be rewrite and maybe AST constructed by parser should be modified. If you have interests in this task, please go ahead! Contact me if you have doubts on my part😝
+        The main purpose of this project is exploring the possibility and utmost of accelerate match algorithm in GPU or other ASIC platforms.
+        If I want to support those non-standard rules, I have to change the current runtime match algorithm (a highly paralleled and high efficient algorithm), and use dfs-like algorithm to do the match tasks, which is difficult for the parallelization and usually cache-unfriendly. At the same time, a very power regex library: hyperscan，does not support non-standard ones also.
+        Certainly, I'm lazy doesn't mean there is no possibility of keep supporting those non-standard ones in the future, but matcher might need to be rewrite and maybe AST constructed by parser should be modified. If you have interests in this task, please go ahead! Contact me if you have doubts on my part😝
 
 4. Algorithm and implementation details please refer to directory doc/
 
