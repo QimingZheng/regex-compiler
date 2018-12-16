@@ -3,11 +3,11 @@ CXXFLAG= --std=c++11 -O0
 CXX_INCLUDE= -I../src/
 CXX_LIBRARY= -L../src/
 NVCC= nvcc
-NVCCFLAG= -arch=compute_60 -code=sm_60 --std=c++11 -Xptxas -dlcm=ca
+NVCCFLAG= --std=c++11
 NVCC_INCLUDE= -I/usr/local/cuda/include -I../src/
 NVCC_LIBRARY= -L/usr/local/cuda/lib -L../src/
 
-all: parser_UT compiler_UT matcher_UT gpu_matcher_UT
+all: parser_UT compiler_UT matcher_UT gpu_matcher_UT iNFA_helper
 
 parser_UT:
 	${CXX} ${CXXFLAG} ${CXX_INCLUDE} ${CXX_LIBRARY} parser_UT.cc -o parser_UT -lregex_internal
@@ -21,5 +21,8 @@ matcher_UT:
 gpu_matcher_UT:
 	${NVCC} ${NVCCFLAG} ${NVCC_INCLUDE} ${NVCC_LIBRARY} matcher_UT.cu -o gpu_matcher_UT -lregex_internal
 
+iNFA_helper:
+	${CXX} ${CXXFLAG} ${CXX_INCLUDE} ${CXX_LIBRARY} iNFA_helper.cc -o iNFA_helper -lregex_internal
+
 clean:
-	rm parser_UT compiler_UT matcher_UT gpu_matcher_UT
+	rm parser_UT compiler_UT matcher_UT gpu_matcher_UT iNFA_helper
