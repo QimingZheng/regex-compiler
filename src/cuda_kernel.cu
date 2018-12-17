@@ -5,11 +5,11 @@
 
 __global__ void matcher(u8 *states, u8 *final_states, int *begin_index_of_states, 
     int *pre_states, int *begin_index_of_pre, int state_num,
-    int transition_num, u8 *str, int length, bool *matcher_result){
+    int transition_num, int str_num, u8 *str, int *str_begin_index, int *length, bool *matcher_result){
     int thread_idx = threadIdx.x;
-    //int block_idx = blockIdx.x;
+    int block_idx = blockIdx.x;
     int thread_cnt = blockDim.x;
-    //int block_cnt = gridDim.x;
+    int block_cnt = gridDim.x;
 
     int ind = 0, ch;
     int from, to;
@@ -22,38 +22,44 @@ __global__ void matcher(u8 *states, u8 *final_states, int *begin_index_of_states
     __shared__ int shared_final_states[1<<10]; // state num should be less than 32K
 
     for(int i = thread_idx; i < (state_num-1)/(8*sizeof(int)) + 1; i+=thread_cnt){
-        shared_state[0][i] = 0;
-        shared_state[1][i] = (int(states[4*i])) | (int(states[4*i+1])<<8) | (int(states[4*i+2])<<16) | (int(states[4*i+3])<<24);
         shared_final_states[i] = (int(final_states[4*i])) | (int(final_states[4*i+1])<<8) | (int(final_states[4*i+2])<<16) | (int(final_states[4*i+3])<<24);
     }
     __syncthreads();
 
-    while(ind<length){
-        ch = str[ind];
-        from = begin_index_of_states[ch];
-        if (ch<255) to = begin_index_of_states[ch+1];
-        else to = state_num;
-
-        for(int i = thread_idx+from; i<to; i+=thread_cnt){
-            pre_from = begin_index_of_pre[i];
-            if (i<state_num-1) pre_to = begin_index_of_pre[i+1];
-            else pre_to = transition_num;
-            int tmp = 0;
-            for(int j=pre_from; j<pre_to; j++){
-                tmp |= (shared_state[(ind+1)%2][pre_states[j]/(sizeof(int)*8)] & (1<<(pre_states[j]%(sizeof(int)*8))));
-            }
-            if(tmp) atomicOr(&shared_state[ind%2][i/(sizeof(int)*8)], (1<<(i%(sizeof(int)*8)))); // should be done with atomic operations
-        }
-        __syncthreads();
+    for (int str_id = block_idx; str_id < str_num, str_id += block_cnt){
+        ind = str_begin_index[str_id];
         for(int i = thread_idx; i < (state_num-1)/(8*sizeof(int)) + 1; i+=thread_cnt){
-            shared_state[(ind+1)%2][i] = 0;
+            shared_state[(ind)%2][i] = 0;
+            shared_state[(ind+1)%2][i] = (int(states[4*i])) | (int(states[4*i+1])<<8) | (int(states[4*i+2])<<16) | (int(states[4*i+3])<<24);
         }
         __syncthreads();
-        ind+=1;
-    }
-    ind -= 1;
-    for(int i = thread_idx; i < (state_num-1)/(8*sizeof(int)) + 1; i+=thread_cnt){
-        if (shared_state[ind%2][i] & shared_final_states[i]) {*matcher_result = true;}
+        while(ind<str_begin_index[str_id] + length[str_id]){
+            ch = str[ind];
+            from = begin_index_of_states[ch];
+            if (ch<255) to = begin_index_of_states[ch+1];
+            else to = state_num;
+
+            for(int i = thread_idx+from; i<to; i+=thread_cnt){
+                pre_from = begin_index_of_pre[i];
+                if (i<state_num-1) pre_to = begin_index_of_pre[i+1];
+                else pre_to = transition_num;
+                int tmp = 0;
+                for(int j=pre_from; j<pre_to; j++){
+                    tmp |= (shared_state[(ind+1)%2][pre_states[j]/(sizeof(int)*8)] & (1<<(pre_states[j]%(sizeof(int)*8))));
+                }
+                if(tmp) atomicOr(&shared_state[ind%2][i/(sizeof(int)*8)], (1<<(i%(sizeof(int)*8)))); // should be done with atomic operations
+            }
+            __syncthreads();
+            for(int i = thread_idx; i < (state_num-1)/(8*sizeof(int)) + 1; i+=thread_cnt){
+                shared_state[(ind+1)%2][i] = 0;
+            }
+            __syncthreads();
+            ind+=1;
+        }
+        ind -= 1;
+        for(int i = thread_idx; i < (state_num-1)/(8*sizeof(int)) + 1; i+=thread_cnt){
+            if (shared_state[ind%2][i] & shared_final_states[i]) {matcher_result[std_id] = true;}
+        }
     }
     __syncthreads();
     return;
@@ -61,7 +67,7 @@ __global__ void matcher(u8 *states, u8 *final_states, int *begin_index_of_states
 
 
 vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final_states, int *begin_index_of_states,
-    int *begin_index_of_pre, int *pre_states, u8 *str, int length){
+    int *begin_index_of_pre, int *pre_states, int str_num, u8 *str, int *str_begin_index, int *length){
 
     struct timeval start_time, end_time;
     vector<int> ret;
@@ -74,18 +80,25 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
     int *d_begin_index_of_states;
     int *d_pre_states;
     int *d_begin_index_of_pre;
-    bool *matcher_result = new bool;
+    bool *matcher_result = new bool [str_num];
+    memset(matcher_result, 0, sizeof(bool)*str_num);
     bool *d_matcher_result;
-    *matcher_result = false;
     u8 *d_str;
+    int *d_str_begin_index;
+    int *d_length;
+
+    int total_len = 0;
+    for(int i=0; i<str_num; i++) total_len+=length[i];
 
     cudaMalloc((void **)&d_states, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1));
     cudaMalloc((void **)&d_final_states, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1));
     cudaMalloc((void **)&d_begin_index_of_states, sizeof(int)*(256));
     cudaMalloc((void **)&d_begin_index_of_pre, sizeof(int)*(state_num));
     cudaMalloc((void **)&d_pre_states, sizeof(int)*(transition_num));
-    cudaMalloc((void **)&d_str, sizeof(u8)*length);
-    cudaMalloc((void **)&d_matcher_result, sizeof(bool));
+    cudaMalloc((void **)&d_str, sizeof(u8)*total_len);
+    cudaMalloc((void **)&d_matcher_result, sizeof(bool)*str_num);
+    cudaMalloc((void **)&d_str_begin_index, sizeof(int)*str_num);
+    cudaMalloc((void **)&d_length, sizeof(int)*str_num);
 
     cudaMemcpy(d_states, states, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1), cudaMemcpyHostToDevice);
     cudaMemcpy(d_final_states, final_states, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1), cudaMemcpyHostToDevice);
@@ -94,7 +107,9 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
     cudaMemcpy(d_pre_states, pre_states, sizeof(int)*(transition_num), cudaMemcpyHostToDevice);
     
     gettimeofday(&start_time, NULL);
-    cudaMemcpy(d_str, str, sizeof(u8)*length, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_str, str, sizeof(u8)*total_len, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_str_begin_index, str_begin_index, sizeof(int)*str_num, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_length, length, sizeof(int)*str_num, cudaMemcpyHostToDevice);
     gettimeofday(&end_time, NULL);
     float elapsed_time = (end_time.tv_sec - start_time.tv_sec) * 1000.0 +
                          (end_time.tv_usec - start_time.tv_usec) / 1000.0;
@@ -113,7 +128,7 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
                    (end_time.tv_usec - start_time.tv_usec) / 1000.0;
     cout << "Execute "<< length <<"Byte, Regex-Matcher Kernel Execution Time Cost: " << elapsed_time << " ms\n";
 
-    cudaMemcpy(matcher_result, d_matcher_result, sizeof(bool), cudaMemcpyDeviceToHost);
+    cudaMemcpy(matcher_result, d_matcher_result, sizeof(bool)*str_num, cudaMemcpyDeviceToHost);
     
     cudaFree(d_str);
     cudaFree(d_states);
@@ -123,9 +138,12 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
     cudaFree(d_begin_index_of_states);
     cudaFree(d_begin_index_of_pre);
 
-    if(*matcher_result) ret.push_back(length-1);
+    for (int i=0;i<str_num; i++) {
+        if(matcher_result[i]) ret.push_back(1);
+        else ret.push_back(0);
+    }
 
-    delete matcher_result;
-    
+    delete [] matcher_result;
+
     return ret;
 }
