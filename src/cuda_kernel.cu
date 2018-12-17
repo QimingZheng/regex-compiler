@@ -62,6 +62,8 @@ __global__ void matcher(u8 *states, u8 *final_states, int *begin_index_of_states
 
 vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final_states, int *begin_index_of_states,
     int *begin_index_of_pre, int *pre_states, u8 *str, int length){
+
+    struct timeval start_time, end_time;
     vector<int> ret;
     ret.clear();
 
@@ -90,14 +92,26 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
     cudaMemcpy(d_begin_index_of_states, begin_index_of_states, sizeof(int)*(256), cudaMemcpyHostToDevice);
     cudaMemcpy(d_begin_index_of_pre, begin_index_of_pre, sizeof(int)*(state_num), cudaMemcpyHostToDevice);
     cudaMemcpy(d_pre_states, pre_states, sizeof(int)*(transition_num), cudaMemcpyHostToDevice);
+    
+    gettimeofday(&start_time, NULL);
     cudaMemcpy(d_str, str, sizeof(u8)*length, cudaMemcpyHostToDevice);
+    gettimeofday(&end_time, NULL);
+    float elapsed_time = (end_time.tv_sec - start_time.tv_sec) * 1000.0 +
+                         (end_time.tv_usec - start_time.tv_usec) / 1000.0;
+    cout << "Cuda Mem Alloc Time Cost: " << elapsed_time << " ms\n";
+
     cudaMemcpy(d_matcher_result, matcher_result, sizeof(bool), cudaMemcpyHostToDevice);
 
     dim3 grid(1,1,1);
     dim3 block(1024,1,1);
+    gettimeofday(&start_time, NULL);
     matcher<<<grid, block>>>(d_states, d_final_states, d_begin_index_of_states, d_pre_states, d_begin_index_of_pre,
             state_num, transition_num, d_str, length, d_matcher_result);
     cudaDeviceSynchronize();
+    gettimeofday(&end_time, NULL);
+    elapsed_time = (end_time.tv_sec - start_time.tv_sec) * 1000.0 +
+                   (end_time.tv_usec - start_time.tv_usec) / 1000.0;
+    cout << "Execute "<< length <<"Byte, Regex-Matcher Kernel Execution Time Cost: " << elapsed_time << " ms\n";
 
     cudaMemcpy(matcher_result, d_matcher_result, sizeof(bool), cudaMemcpyDeviceToHost);
 
