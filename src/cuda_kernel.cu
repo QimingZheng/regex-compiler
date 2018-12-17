@@ -114,6 +114,16 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
     cout << "Execute "<< length <<"Byte, Regex-Matcher Kernel Execution Time Cost: " << elapsed_time << " ms\n";
 
     cudaMemcpy(matcher_result, d_matcher_result, sizeof(bool), cudaMemcpyDeviceToHost);
+    
+    cudaFree(d_str);
+    cudaFree(d_states);
+    cudaFree(d_pre_states);
+    cudaFree(d_matcher_result);
+    cudaFree(d_final_states);
+    cudaFree(d_begin_index_of_states);
+    cudaFree(d_begin_index_of_pre);
+
+    delete matcher_result;
 
     if(*matcher_result) ret.push_back(length-1);
     return ret;
