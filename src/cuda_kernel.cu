@@ -123,8 +123,9 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
     cudaFree(d_begin_index_of_states);
     cudaFree(d_begin_index_of_pre);
 
-    delete matcher_result;
-
     if(*matcher_result) ret.push_back(length-1);
+
+    delete matcher_result;
+    
     return ret;
 }
