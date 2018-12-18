@@ -13,18 +13,18 @@ int main(int argc, char **argv){
 
     int str_num = atoi(argv[2]);
     u8 *input_str = new u8[atoi(argv[1])];
-    int *str_len = new int[str_num]
+    int *str_len = new int[str_num];
     int *str_begin_ind = new int[str_num];
 
     for(int i=0;i<str_num-1;i++) {
         str_len[i] = atoi(argv[1])/str_num;
         str_begin_ind = i*(atoi(argv[1])/str_num);
     }
-    str_len[str_num-1] = atoi(argv[1])%str_num;
-    str_begin_ind[str_num-1] = i*(atoi(argv[1])/str_num);
+    str_len[str_num-1] = (atoi(argv[1])%str_num == 0)? atoi(argv[1])/str_num : atoi(argv[1])%str_num;
+    str_begin_ind[str_num-1] = (str_num-1)*(atoi(argv[1])/str_num);
 
-    tmp = gpu_matcher(Matcher.state_num, Matcher.transition_num, Matcher.states, Matcher.final_states, Matcher.begin_index_of_states,
-        Matcher.begin_index_of_pre, Matcher.pre_states, str_num, input_str, str_begin_ind, &str_len);
+    gpu_matcher(Matcher.state_num, Matcher.transition_num, Matcher.states, Matcher.final_states, Matcher.begin_index_of_states,
+        Matcher.begin_index_of_pre, Matcher.pre_states, str_num, input_str, str_begin_ind, str_len);
 
     return 0;
 }

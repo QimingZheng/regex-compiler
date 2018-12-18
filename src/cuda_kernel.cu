@@ -117,7 +117,7 @@ vector<int> gpu_matcher(int state_num, int transition_num, u8 *states, u8 *final
 
     cudaMemcpy(d_matcher_result, matcher_result, sizeof(bool), cudaMemcpyHostToDevice);
 
-    dim3 grid(1,1,1);
+    dim3 grid(64,1,1);
     dim3 block(1024,1,1);
     gettimeofday(&start_time, NULL);
     matcher<<<grid, block>>>(d_states, d_final_states, d_begin_index_of_states, d_pre_states, d_begin_index_of_pre,
