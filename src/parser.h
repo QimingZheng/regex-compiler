@@ -17,7 +17,16 @@
 #include <time.h>
 #include <sys/time.h>
 
+#define LEFT_BRACKET -1
+#define RIGHT_BRACKET -2
+#define KLEEN_STAR -3
+#define CONCATENATION -4
+#define ALTERNATE -5
+
+
 using namespace std;
+
+
 
 typedef unsigned char u8;
 
@@ -44,7 +53,7 @@ struct ast_node{
         _Neighbor_set.clear();
     }
     int node_type; // 0: internal node or 1: leaf, -1: by default at initialization stage
-    int op_type; // if node_type is internal node, then op_type is valid. -5: concate, -4: alternate, -3: kleene star
+    int op_type; // if node_type is internal node, then op_type is valid. -4: concate, -5: alternate, -3: kleene star
                     // we only support 3 types, for the construction of a glushkov NFA.
     int identifier; // if node_type is leaf, then identifier is valid, represent a character.
     int ids; // helper attribute for traverse in debug

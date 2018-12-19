@@ -18,13 +18,13 @@ void AST::constructAST(vector<int> post_regex){
                     (post_regex[i]<0?post_regex[i]:-1), (post_regex[i]>=0?post_regex[i]:-1));
         if (cur->node_type==0){
             switch (cur->op_type){
-                case -3:
+                case KLEEN_STAR:
                     assert(!S.empty());
                     cur->child.push_back(S.top());
                     S.pop();
                     S.push(cur);
                     break;
-                case -4:
+                case ALTERNATE:
                     assert(S.size()>=2);
                     cur->child.push_back(S.top());
                     S.pop();
@@ -33,7 +33,7 @@ void AST::constructAST(vector<int> post_regex){
                     swap(cur->child[0], cur->child[1]);
                     S.push(cur);
                     break;
-                case -5:
+                case CONCATENATION:
                     assert(S.size()>=2);
                     cur->child.push_back(S.top());
                     S.pop();
@@ -73,62 +73,62 @@ vector<int> AST::re2post(vector<int> re){
             // |: -4
             // .: -5
             // char: >=0
-            case -1: // ( : -1
-                S.push(-1);
+            case LEFT_BRACKET: // ( : -1
+                S.push(LEFT_BRACKET);
                 break;
-            case -2:// ) : -2
+            case RIGHT_BRACKET:// ) : -2
                 while(!S.empty()){
-                    if(S.top() == -1 ) break;
+                    if(S.top() == LEFT_BRACKET ) break;
                     ret.push_back(S.top());
                     S.pop();
                 }
                 if (S.empty()) {printf("invalid regex\n"); exit(-1);}
                 S.pop();
                 break;
-            case -3: // *: -3
-                if(S.empty()) {S.push(-3);}
-                else if (S.top()==-1){
-                    S.push(-3);
+            case KLEEN_STAR: // *: -3
+                if(S.empty()) {S.push(KLEEN_STAR);}
+                else if (S.top()==LEFT_BRACKET){
+                    S.push(KLEEN_STAR);
                 }
-                else if(S.top()>=-3) {
+                else if(S.top()>=KLEEN_STAR) {
                     while(!S.empty()){
-                        if (S.top()<-3 || S.top()==-1) break;
+                        if (S.top()<KLEEN_STAR || S.top()==LEFT_BRACKET) break;
                         ret.push_back(S.top());
                         S.pop();
                     }
-                    S.push(-3);
+                    S.push(KLEEN_STAR);
                 }
-                else{S.push(-3);}
+                else{S.push(KLEEN_STAR);}
                 break;
-            case -4: // |: -4
-                if(S.empty()) {S.push(-4);}
-                else if (S.top()==-1){
-                    S.push(-4);
+            case ALTERNATE: // |: -4
+                if(S.empty()) {S.push(ALTERNATE);}
+                else if (S.top()==LEFT_BRACKET){
+                    S.push(ALTERNATE);
                 }
-                else if(S.top()>=-4) {
+                else if(S.top()>=ALTERNATE) {
                     while(!S.empty()){
-                        if (S.top()<-4 || S.top()==-1) break;
+                        if (S.top()<ALTERNATE || S.top()==LEFT_BRACKET) break;
                         ret.push_back(S.top());
                         S.pop();
                     }
-                    S.push(-4);
+                    S.push(ALTERNATE);
                 }
-                else{S.push(-4);}
+                else{S.push(ALTERNATE);}
                 break;
-            case -5:
-                if(S.empty()) {S.push(-5);}
-                else if (S.top()==-1){
-                    S.push(-5);
+            case CONCATENATION:
+                if(S.empty()) {S.push(CONCATENATION);}
+                else if (S.top()==LEFT_BRACKET){
+                    S.push(CONCATENATION);
                 }
-                else if(S.top()>=-5) {
+                else if(S.top()>=CONCATENATION) {
                     while(!S.empty()){
-                        if (S.top()<-5 || S.top()==-1) break;
+                        if (S.top()<CONCATENATION || S.top()==LEFT_BRACKET) break;
                         ret.push_back(S.top());
                         S.pop();
                     }
-                    S.push(-5);
+                    S.push(CONCATENATION);
                 }
-                else{S.push(-5);}
+                else{S.push(CONCATENATION);}
                 break;
             default:
                 ret.push_back(ch);
@@ -137,7 +137,7 @@ vector<int> AST::re2post(vector<int> re){
     }
 
     while(!S.empty()){
-        if (S.top() == -1) {printf("invalid regex\n"); exit(-2);}
+        if (S.top() == LEFT_BRACKET) {printf("invalid regex\n"); exit(-2);}
         ret.push_back(S.top());
         S.pop();
     }
@@ -155,24 +155,24 @@ vector<int> AST::extend_regex(char *regex, int length){
             case '(':
                 if (re.size()){
                     int last = re[re.size()-1];
-                    if (last==-2 || last ==-3 || last>=0)
-                        re.push_back(-5);
+                    if (last==RIGHT_BRACKET || last==KLEEN_STAR || last>=0)
+                        re.push_back(CONCATENATION);
                 }
-                re.push_back(-1);
+                re.push_back(LEFT_BRACKET);
                 break;
             case ')':
-                re.push_back(-2);
+                re.push_back(RIGHT_BRACKET);
                 break;
             case '*':
-                re.push_back(-3);
+                re.push_back(KLEEN_STAR);
                 break;
             case '|':
-                re.push_back(-4);
+                re.push_back(ALTERNATE);
                 break;
             default:
                 if (re.size()){
                     int last = re[re.size()-1];
-                    if(last>=0 || last==-2 || last == -3) re.push_back(-5);
+                    if(last>=0 || last==RIGHT_BRACKET || last == KLEEN_STAR) re.push_back(CONCATENATION);
                 }
                 re.push_back(int((u8)(regex[i])));
                 break;
@@ -206,11 +206,11 @@ void AST::traverse(){
         if (cur->node_type==1)
             des.push_back(string(1,char(cur->identifier)));
         else {
-            if (cur->op_type==-3)
+            if (cur->op_type==KLEEN_STAR)
                 des.push_back("*");
-            if (cur->op_type==-4)
+            if (cur->op_type==ALTERNATE)
                 des.push_back("|");
-            if (cur->op_type==-5)
+            if (cur->op_type==CONCATENATION)
                 des.push_back(".");
         }
         Q.pop();
