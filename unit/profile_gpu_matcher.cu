@@ -18,7 +18,7 @@ int main(int argc, char **argv){
 
     for(int i=0;i<str_num-1;i++) {
         str_len[i] = atoi(argv[1])/str_num;
-        str_begin_ind = i*(atoi(argv[1])/str_num);
+        str_begin_ind[i] = i*(atoi(argv[1])/str_num);
     }
     str_len[str_num-1] = (atoi(argv[1])%str_num == 0)? atoi(argv[1])/str_num : atoi(argv[1])%str_num;
     str_begin_ind[str_num-1] = (str_num-1)*(atoi(argv[1])/str_num);
