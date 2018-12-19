@@ -83,18 +83,18 @@ void GlushKov_NFA::label_ast_to_nfa(ast_node *_ast) {
 bool GlushKov_NFA::V_set(ast_node *_ast){
     if (_ast->node_type==1){_ast->_V_set = false; return false;}
     else{
-        if (_ast->op_type == -3){
+        if (_ast->op_type == KLEEN_STAR){
             V_set(_ast->child[0]);
             _ast->_V_set = true;
             return _ast->_V_set;
         }
-        if (_ast->op_type == -4){
+        if (_ast->op_type == ALTERNATE){
             V_set(_ast->child[0]);
             V_set(_ast->child[1]);
             _ast->_V_set = (_ast->child[0]->_V_set || _ast->child[1]->_V_set);
             return _ast->_V_set;
         }
-        if (_ast->op_type == -5){
+        if (_ast->op_type == CONCATENATION){
             V_set(_ast->child[0]);
             V_set(_ast->child[1]);
             _ast->_V_set = (_ast->child[0]->_V_set && _ast->child[1]->_V_set);
@@ -110,17 +110,17 @@ bool GlushKov_NFA::V_set(ast_node *_ast){
 vector<int> GlushKov_NFA::Prefix_set(ast_node *_ast){
     if (_ast->node_type==1){_ast->_Prefix_set.push_back(_ast->ids); return _ast->_Prefix_set;}
     else{
-        if (_ast->op_type == -3){
+        if (_ast->op_type == KLEEN_STAR){
             _ast->_Prefix_set = Prefix_set(_ast->child[0]);
             return _ast->_Prefix_set;
         }
-        if (_ast->op_type == -4){
+        if (_ast->op_type == ALTERNATE){
             Prefix_set(_ast->child[0]);
             Prefix_set(_ast->child[1]);
             _ast->_Prefix_set = vector_union(_ast->child[0]->_Prefix_set, _ast->child[1]->_Prefix_set);
             return _ast->_Prefix_set;
         }
-        if (_ast->op_type == -5){
+        if (_ast->op_type == CONCATENATION){
             Prefix_set(_ast->child[0]);
             Prefix_set(_ast->child[1]);
             if (_ast->child[0]->_V_set)
@@ -139,17 +139,17 @@ vector<int> GlushKov_NFA::Prefix_set(ast_node *_ast){
 vector<int> GlushKov_NFA::Suffix_set(ast_node *_ast){
     if (_ast->node_type==1){_ast->_Suffix_set.push_back(_ast->ids); return _ast->_Suffix_set;}
     else{
-        if (_ast->op_type == -3){
+        if (_ast->op_type == KLEEN_STAR){
             _ast->_Suffix_set = Suffix_set(_ast->child[0]);
             return _ast->_Suffix_set;
         }
-        if (_ast->op_type == -4){
+        if (_ast->op_type == ALTERNATE){
             Suffix_set(_ast->child[0]);
             Suffix_set(_ast->child[1]);
             _ast->_Suffix_set = vector_union(_ast->child[0]->_Suffix_set, _ast->child[1]->_Suffix_set);
             return _ast->_Suffix_set;
         }
-        if (_ast->op_type == -5){
+        if (_ast->op_type == CONCATENATION){
             Suffix_set(_ast->child[0]);
             Suffix_set(_ast->child[1]);
             if (_ast->child[1]->_V_set)
@@ -168,7 +168,7 @@ vector<int> GlushKov_NFA::Suffix_set(ast_node *_ast){
 vector<edge_pair> GlushKov_NFA::Neighbor_set(ast_node *_ast){
     if (_ast->node_type==1){_ast->_Neighbor_set.clear(); return _ast->_Neighbor_set;}
     else{
-        if (_ast->op_type == -3){
+        if (_ast->op_type == KLEEN_STAR){
             Neighbor_set(_ast->child[0]);
             vector<int> P = _ast->child[0]->_Prefix_set;
             vector<int> D = _ast->child[0]->_Suffix_set;
@@ -183,13 +183,13 @@ vector<edge_pair> GlushKov_NFA::Neighbor_set(ast_node *_ast){
             _ast->_Neighbor_set = vector_union(_ast->child[0]->_Neighbor_set, D_P);
             return _ast->_Neighbor_set;
         }
-        if (_ast->op_type == -4){
+        if (_ast->op_type == ALTERNATE){
             Neighbor_set(_ast->child[0]);
             Neighbor_set(_ast->child[1]);
             _ast->_Neighbor_set = vector_union(_ast->child[0]->_Neighbor_set, _ast->child[1]->_Neighbor_set);
             return _ast->_Neighbor_set;
         }
-        if (_ast->op_type == -5){
+        if (_ast->op_type == CONCATENATION){
             Neighbor_set(_ast->child[0]);
             Neighbor_set(_ast->child[1]);
             vector<int> D = _ast->child[0]->_Suffix_set;
