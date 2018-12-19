@@ -46,6 +46,9 @@ vector<int> NFA_Matcher::optimized_matcher(u8 *str, int length){
     // init start states
     states[0] = 1;
 
+    for(int j=0; j<(state_num-1)/(sizeof(u8)*8)+1; j++)
+        if(final_states[j]&states[j]) {ret.push_back(-1); break;}
+
     for(int i=0; i<length; i++){
         int ch = str[i];
         int from = begin_index_of_states[ch];
@@ -88,22 +91,12 @@ void NFA_Matcher::init_table(){
     memset(final_states, 0, sizeof(u8)*((state_num-1)/(8*sizeof(u8)) + 1));
 
     begin_index_of_states = new int[256];
-    memset(begin_index_of_states, 0, sizeof(int)*256);
-    int _cnt = 0;
+    memset(begin_index_of_states, state_num, sizeof(int)*256);
 
     for(auto iter = nfa->state.begin(); iter != nfa->state.end(); iter++){
-        if((*iter)->identifier>_cnt) {
-            for(int k = _cnt; k<(*iter)->identifier; k++)
-                begin_index_of_states[k]=state_num;
-            begin_index_of_states[(*iter)->identifier] = (*iter)->state_id;
-            _cnt=1+(*iter)->identifier;
-        }
-        else if((*iter)->identifier==_cnt){
-            begin_index_of_states[(*iter)->identifier] = (*iter)->state_id;
-            _cnt++;
-        }
+        begin_index_of_states[(*iter)->identifier]= min(begin_index_of_states[(*iter)->identifier],(*iter)->state_id);
     }
-    for(int i=_cnt; i<256;i++)  begin_index_of_states[i]=state_num;
+    for(int i=254; i>=0;i--)  if(begin_index_of_states[i]==state_num) begin_index_of_states[i]=begin_index_of_states[i+1];
     
     vector<int> tmp_pre_state;
     vector<int> tmp_pre_index;
