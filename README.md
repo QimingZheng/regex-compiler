@@ -2,7 +2,7 @@
 
 [English](README.md) [中文版](README-CN.md)
 
-1. This repo contains major code for my graduation project，about regex-match engine acceleration.
+1. This repo is a part for my graduation project，about regex-match engine acceleration.
 
 2. Directories src/ contains a series of tools: **parser**，**compiler**，**matcher**, and I'll keep enlarging supported grammar (till 2018.12.15，only basic operands: '|','.','*' are supported, alphabet: char，(unicode can be supported by reading 2-byte unicode as 2 continuous byte char)). This regex can only support **standard regular language**, actually, most modern regex-engine supports CFG grammar, even beyond CFG. Thus,modern regex (like perl，pcre etc.) is not standard regular language，regular language is a subset of the language they support. For more knowledge about automaton theory/computation langhage theory, please refer to related textbooks.
 
